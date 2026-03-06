@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  semantic-search:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: newsgroups-semantic-search
+
+    command: python start.py
+
+    ports:
+      - "8000:8000"   # FastAPI backend
+      - "8501:8501"   # Streamlit frontend
+
+    volumes:
+      - ./data:/app/data:ro
+
+    environment:
+      CHROMA_PERSIST_DIR: /app/data/chroma_db
+      CLUSTERING_ARTIFACTS_DIR: /app/data
+      CACHE_SIMILARITY_THRESHOLD: 0.85
+      CACHE_MAX_SIZE: 10000
+
+    restart: on-failure
+
+    mem_limit: 4g
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
