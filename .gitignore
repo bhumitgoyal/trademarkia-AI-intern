@@ -2,6 +2,7 @@ echo "__pycache__/
 *.pyc
 .env
 venv/
+data/
 .cache/
 .idea/
 .vscode/" >> .gitignore
