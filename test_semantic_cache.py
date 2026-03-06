@@ -3,14 +3,14 @@ from src.semantic_cache import SemanticCache
 
 
 def random_embedding(dim=384):
-    """Generate normalized random embedding."""
+
     v = np.random.randn(dim)
     v = v / np.linalg.norm(v)
     return v.astype(np.float32)
 
 
 def random_memberships(n_clusters=10):
-    """Generate valid fuzzy cluster membership distribution."""
+
     v = np.random.rand(n_clusters)
     v = v / v.sum()
     return v
@@ -23,15 +23,15 @@ def test_cache_miss_then_put_then_hit():
     embedding = random_embedding()
     memberships = random_memberships()
 
-    # First lookup → MISS
+
     hit = cache.get(embedding, memberships)
     assert hit is None
 
-    # Store result
+
     result = {"answer": "AI is the simulation of human intelligence."}
     cache.put(query, embedding, memberships, result)
 
-    # Second lookup → HIT
+
     hit = cache.get(embedding, memberships)
     assert hit is not None
     assert hit.result == result
@@ -47,7 +47,7 @@ def test_paraphrase_hit():
     result = {"answer": "Machine learning is a subset of AI."}
     cache.put(query1, emb1, memberships, result)
 
-    # simulate paraphrase (very similar embedding)
+
     emb2 = emb1 + np.random.normal(0, 0.01, emb1.shape)
     emb2 = emb2 / np.linalg.norm(emb2)
 
@@ -67,10 +67,10 @@ def test_cluster_gating():
 
     cache.put("query1", emb, memberships1, {"a": 1})
 
-    # query in different cluster
+
     hit = cache.get(emb, memberships2)
 
-    # likely miss because clusters differ
+
     assert hit is None or hit.similarity_score < cache.similarity_threshold
 
 
@@ -83,7 +83,7 @@ def test_lru_eviction():
         emb = random_embedding()
         cache.put(f"query{i}", emb, memberships, {"id": i})
 
-    # cache should not exceed max size
+
     stats = cache.stats()
     assert stats["total_entries"] <= 3
 

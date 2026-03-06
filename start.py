@@ -9,11 +9,14 @@ import requests
 ROOT = Path(__file__).parent
 
 PIPELINE_SCRIPT = ROOT / "scripts" / "run_pipeline.py"
+DOWNLOAD_SCRIPT = ROOT / "scripts" / "download_dataset.py"
 REQUIREMENTS = ROOT / "requirements.txt"
 
 FRONTEND_APP = ROOT / "frontend" / "app.py"
 
 DATA_DIR = ROOT / "data"
+DATASET_FOLDER = DATA_DIR / "20_newsgroups"
+
 EMBEDDINGS = DATA_DIR / "embeddings.npy"
 PCA_MODEL = DATA_DIR / "pca_model.joblib"
 FCM_CENTERS = DATA_DIR / "fcm_centers.npy"
@@ -29,7 +32,24 @@ def install_requirements():
     else:
         logger.warning("requirements.txt not found — skipping install")
 
+def dataset_needed():
+    """Check if dataset folder exists"""
+    return not DATASET_FOLDER.exists()
 
+
+def download_dataset():
+    """Download dataset if not present"""
+    if dataset_needed():
+        logger.info("Dataset not found — downloading dataset...")
+        subprocess.check_call(
+            [
+                sys.executable,
+                str(DOWNLOAD_SCRIPT)
+            ]
+        )
+        logger.success("Dataset downloaded successfully.")
+    else:
+        logger.info("Dataset already exists — skipping download.")
 def pipeline_needed():
     """Check if pipeline artifacts exist"""
     return not (
@@ -113,6 +133,8 @@ def main():
     logger.info("=" * 60)
 
     install_requirements()
+
+    download_dataset()
 
     if pipeline_needed():
         logger.info("Pipeline artifacts missing — running pipeline.")
